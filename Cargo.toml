@@ -6,14 +6,15 @@ authors = ["Peter Jin <peterhaijin@gmail.com>"]
 
 [features]
 default         = []
-cuda_6_5        = []
-cuda_7_0        = ["gte_cuda_7_0"]
-cuda_7_5        = ["gte_cuda_7_0", "gte_cuda_7_5"]
-cuda_8_0        = ["gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0"]
-cuda_9_0        = ["gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0"]
-cuda_9_1        = ["gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1"]
-cuda_9_2        = ["gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1", "gte_cuda_9_2"]
-cuda_10_0       = ["gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1", "gte_cuda_9_2", "gte_cuda_10_0"]
+cuda_version    = ["static_assertions"]
+cuda_6_5        = ["cuda_version"]
+cuda_7_0        = ["cuda_version", "gte_cuda_7_0"]
+cuda_7_5        = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5"]
+cuda_8_0        = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0"]
+cuda_9_0        = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0"]
+cuda_9_1        = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1"]
+cuda_9_2        = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1", "gte_cuda_9_2"]
+cuda_10_0       = ["cuda_version", "gte_cuda_7_0", "gte_cuda_7_5", "gte_cuda_8_0", "gte_cuda_9_0", "gte_cuda_9_1", "gte_cuda_9_2", "gte_cuda_10_0"]
 gte_cuda_7_0    = []
 gte_cuda_7_5    = []
 gte_cuda_8_0    = []
@@ -26,7 +27,7 @@ gte_cuda_10_0   = []
 bindgen = "^0.45"
 
 [dependencies]
-static_assertions = "0.3.1"
+static_assertions = { version = "0.3.1", optional = true }
 
 [lib]
 name = "cuda_ffi_types"

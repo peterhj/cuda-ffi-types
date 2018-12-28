@@ -2,10 +2,16 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
+#[cfg(feature = "cuda_version")]
 #[macro_use] extern crate static_assertions;
 
 pub mod cuda {
 include!(concat!(env!("OUT_DIR"), "/cuda.rs"));
+}
+
+#[cfg(feature = "gte_cuda_8_0")]
+pub mod cuda_fp16 {
+include!(concat!(env!("OUT_DIR"), "/cuda_fp16.rs"));
 }
 
 pub mod cuda_runtime_api {
