@@ -48,18 +48,20 @@ fn main() {
     .expect("bindgen failed to write driver bindings");
 
   fs::remove_file(out_dir.join("cuda_fp16.rs")).ok();
-  bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
-    .clang_arg("-x").clang_arg("c++")
-    .clang_arg("-std=c++11")
-    .header("wrapped_cuda_fp16.h")
-    .whitelist_recursively(false)
-    .whitelist_type("__half")
-    .whitelist_type("__half2")
-    .generate()
-    .expect("bindgen failed to generate fp16 bindings")
-    .write_to_file(out_dir.join("cuda_fp16.rs"))
-    .expect("bindgen failed to write fp16 bindings");
+  if cfg!(feature = "gte_cuda_8_0") {
+    bindgen::Builder::default()
+      .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+      .clang_arg("-x").clang_arg("c++")
+      .clang_arg("-std=c++11")
+      .header("wrapped_cuda_fp16.h")
+      .whitelist_recursively(false)
+      .whitelist_type("__half")
+      .whitelist_type("__half2")
+      .generate()
+      .expect("bindgen failed to generate fp16 bindings")
+      .write_to_file(out_dir.join("cuda_fp16.rs"))
+      .expect("bindgen failed to write fp16 bindings");
+  }
 
   fs::remove_file(out_dir.join("cuda_runtime_api.rs")).ok();
   bindgen::Builder::default()
