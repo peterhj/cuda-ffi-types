@@ -2,54 +2,83 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-#[cfg(feature = "cuda_version")]
 #[macro_use] extern crate static_assertions;
 
-pub mod cuda {
-include!(concat!(env!("OUT_DIR"), "/cuda.rs"));
+pub use crate::v::cuda;
+#[cfg(feature = "cuda_gte_8_0")]
+pub use crate::v::cuda_fp16;
+pub use crate::v::cuda_runtime_api;
+pub use crate::v::driver_types;
+pub use crate::v::library_types;
+
+#[cfg(feature = "cuda_6_5")]
+mod v {
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  6050);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        6050);
 }
 
-#[cfg(feature = "gte_cuda_8_0")]
-pub mod cuda_fp16 {
-include!(concat!(env!("OUT_DIR"), "/cuda_fp16.rs"));
+#[cfg(feature = "cuda_7_0")]
+mod v {
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  7000);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        7000);
 }
 
-pub mod cuda_runtime_api {
-use crate::driver_types::*;
-include!(concat!(env!("OUT_DIR"), "/cuda_runtime_api.rs"));
+#[cfg(feature = "cuda_7_5")]
+mod v {
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  7050);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        7050);
 }
 
-pub mod driver_types {
-use crate::cuda::*;
-include!(concat!(env!("OUT_DIR"), "/driver_types.rs"));
+#[cfg(feature = "cuda_8_0")]
+mod v {
+  pub mod cuda              { include!("v8_0/_cuda.rs"); }
+  pub mod cuda_fp16         { include!("v8_0/cuda_fp16.rs"); }
+  pub mod cuda_runtime_api  { use crate::driver_types::*;
+                              include!("v8_0/_cuda_runtime_api.rs"); }
+  pub mod driver_types      { use crate::cuda::*;
+                              include!("v8_0/_driver_types.rs"); }
+  pub mod library_types     { include!("v8_0/_library_types.rs"); }
+
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  8000);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        8000);
 }
 
-pub mod library_types {
-include!(concat!(env!("OUT_DIR"), "/library_types.rs"));
+#[cfg(feature = "cuda_9_0")]
+mod v {
+  pub mod cuda              { include!("v9_0/_cuda.rs"); }
+  pub mod cuda_fp16         { include!("v9_0/_cuda_fp16.rs"); }
+  pub mod cuda_runtime_api  { use crate::driver_types::*;
+                              include!("v9_0/_cuda_runtime_api.rs"); }
+  pub mod driver_types      { use crate::cuda::*;
+                              include!("v9_0/_driver_types.rs"); }
+  pub mod library_types     { include!("v9_0/_library_types.rs"); }
+
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  9000);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        9000);
 }
 
-mod version_checks {
-  #[cfg(feature = "cuda_6_5")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  6050);
-  #[cfg(feature = "cuda_6_5")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        6050);
+#[cfg(feature = "cuda_9_1")]
+mod v {
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  9010);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        9010);
+}
 
-  #[cfg(feature = "cuda_7_0")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  7000);
-  #[cfg(feature = "cuda_7_0")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        7000);
+#[cfg(feature = "cuda_9_2")]
+mod v {
+  pub mod cuda              { include!("v9_2/_cuda.rs"); }
+  pub mod cuda_fp16         { include!("v9_2/_cuda_fp16.rs"); }
+  pub mod cuda_runtime_api  { use crate::driver_types::*;
+                              include!("v9_2/_cuda_runtime_api.rs"); }
+  pub mod driver_types      { use crate::cuda::*;
+                              include!("v9_2/_driver_types.rs"); }
+  pub mod library_types     { include!("v9_2/_library_types.rs"); }
 
-  #[cfg(feature = "cuda_7_5")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  7050);
-  #[cfg(feature = "cuda_7_5")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        7050);
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION,  9020);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,        9020);
+}
 
-  #[cfg(feature = "cuda_8_0")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  8000);
-  #[cfg(feature = "cuda_8_0")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        8000);
-
-  #[cfg(feature = "cuda_9_0")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  9000);
-  #[cfg(feature = "cuda_9_0")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        9000);
-
-  #[cfg(feature = "cuda_9_1")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  9010);
-  #[cfg(feature = "cuda_9_1")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        9010);
-
-  #[cfg(feature = "cuda_9_2")]  const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION,  9020);
-  #[cfg(feature = "cuda_9_2")]  const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,        9020);
-
-  #[cfg(feature = "cuda_10_0")] const_assert_eq!(cuda_api_version; crate::cuda::__CUDA_API_VERSION, 10000);
-  #[cfg(feature = "cuda_10_0")] const_assert_eq!(cuda_version;     crate::cuda::CUDA_VERSION,       10000);
+#[cfg(feature = "cuda_10_0")]
+mod v {
+  const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION, 10000);
+  const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,       10000);
 }

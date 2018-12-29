@@ -1,19 +1,79 @@
+#[cfg(feature = "fresh")]
 extern crate bindgen;
 
+#[cfg(feature = "fresh")]
 use std::env;
+#[cfg(feature = "fresh")]
 use std::fs;
+#[cfg(feature = "fresh")]
 use std::path::{PathBuf};
 
-fn main() {
-  let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-  let cuda_dir = PathBuf::from(match env::var("CUDA_HOME") {
-    Ok(path) => path,
-    Err(_) => "/usr/local/cuda".to_owned(),
-  });
+#[cfg(all(
+    not(feature = "fresh"),
+    any(
+        feature = "cuda_6_5",
+        feature = "cuda_7_0",
+        feature = "cuda_7_5",
+        feature = "cuda_8_0",
+        feature = "cuda_9_0",
+        feature = "cuda_9_1",
+        feature = "cuda_9_2",
+        feature = "cuda_10_0",
+    )
+))]
+fn main() {}
 
-  fs::remove_file(out_dir.join("cuda.rs")).ok();
+#[cfg(all(
+    not(feature = "fresh"),
+    not(any(
+        feature = "cuda_6_5",
+        feature = "cuda_7_0",
+        feature = "cuda_7_5",
+        feature = "cuda_8_0",
+        feature = "cuda_9_0",
+        feature = "cuda_9_1",
+        feature = "cuda_9_2",
+        feature = "cuda_10_0",
+    ))
+))]
+fn main() {
+  compile_error!("a cuda version feature must be enabled");
+}
+
+#[cfg(feature = "fresh")]
+fn main() {
+  let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+  let cuda_dir = PathBuf::from(
+      env::var("CUDA_HOME")
+        .or_else(|_| env::var("CUDA_PATH"))
+        .unwrap_or_else(|_| "/usr/local/cuda".to_owned())
+  );
+  let cuda_include_dir = cuda_dir.join("include");
+
+  #[cfg(feature = "cuda_6_5")]
+  let a_cuda_version_feature_must_be_enabled = "v6_5";
+  #[cfg(feature = "cuda_7_0")]
+  let a_cuda_version_feature_must_be_enabled = "v7_0";
+  #[cfg(feature = "cuda_7_5")]
+  let a_cuda_version_feature_must_be_enabled = "v7_5";
+  #[cfg(feature = "cuda_8_0")]
+  let a_cuda_version_feature_must_be_enabled = "v8_0";
+  #[cfg(feature = "cuda_9_0")]
+  let a_cuda_version_feature_must_be_enabled = "v9_0";
+  #[cfg(feature = "cuda_9_1")]
+  let a_cuda_version_feature_must_be_enabled = "v9_1";
+  #[cfg(feature = "cuda_9_2")]
+  let a_cuda_version_feature_must_be_enabled = "v9_2";
+  #[cfg(feature = "cuda_10_0")]
+  let a_cuda_version_feature_must_be_enabled = "v10_0";
+  let v = a_cuda_version_feature_must_be_enabled;
+
+  let gensrc_dir = manifest_dir.join("src").join(v);
+  fs::create_dir(&gensrc_dir).ok();
+
+  fs::remove_file(gensrc_dir.join("_cuda.rs")).ok();
   bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+    .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
     .header("wrapped_cuda.h")
     .whitelist_recursively(false)
     .whitelist_var("__CUDA_API_VERSION")
@@ -44,13 +104,14 @@ fn main() {
     .whitelist_type("CUDA_LAUNCH_PARAMS")
     .generate()
     .expect("bindgen failed to generate driver bindings")
-    .write_to_file(out_dir.join("cuda.rs"))
+    .write_to_file(gensrc_dir.join("_cuda.rs"))
     .expect("bindgen failed to write driver bindings");
 
-  fs::remove_file(out_dir.join("cuda_fp16.rs")).ok();
-  if cfg!(feature = "gte_cuda_8_0") {
+  fs::remove_file(gensrc_dir.join("_cuda_fp16.rs")).ok();
+  #[cfg(feature = "cuda_gte_9_0")]
+  {
     bindgen::Builder::default()
-      .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+      .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
       .clang_arg("-x").clang_arg("c++")
       .clang_arg("-std=c++11")
       .header("wrapped_cuda_fp16.h")
@@ -59,25 +120,25 @@ fn main() {
       .whitelist_type("__half2")
       .generate()
       .expect("bindgen failed to generate fp16 bindings")
-      .write_to_file(out_dir.join("cuda_fp16.rs"))
+      .write_to_file(gensrc_dir.join("_cuda_fp16.rs"))
       .expect("bindgen failed to write fp16 bindings");
   }
 
-  fs::remove_file(out_dir.join("cuda_runtime_api.rs")).ok();
+  fs::remove_file(gensrc_dir.join("_cuda_runtime_api.rs")).ok();
   bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+    .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
     .header("wrapped_cuda_runtime_api.h")
     .whitelist_recursively(false)
     .whitelist_type("cudaDeviceProp")
     .whitelist_type("cudaStreamCallback_t")
     .generate()
     .expect("bindgen failed to generate runtime bindings")
-    .write_to_file(out_dir.join("cuda_runtime_api.rs"))
+    .write_to_file(gensrc_dir.join("_cuda_runtime_api.rs"))
     .expect("bindgen failed to write runtime bindings");
 
-  fs::remove_file(out_dir.join("driver_types.rs")).ok();
+  fs::remove_file(gensrc_dir.join("_driver_types.rs")).ok();
   bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+    .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
     .header("wrapped_driver_types.h")
     .whitelist_recursively(false)
     .whitelist_type("cudaError")
@@ -93,18 +154,18 @@ fn main() {
     .whitelist_type("cudaGraphicsResource_t")
     .generate()
     .expect("bindgen failed to generate driver types bindings")
-    .write_to_file(out_dir.join("driver_types.rs"))
+    .write_to_file(gensrc_dir.join("_driver_types.rs"))
     .expect("bindgen failed to write driver types bindings");
 
-  fs::remove_file(out_dir.join("library_types.rs")).ok();
+  fs::remove_file(gensrc_dir.join("_library_types.rs")).ok();
   bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_dir.join("include").as_os_str().to_str().unwrap()))
+    .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
     .header("wrapped_library_types.h")
     .whitelist_recursively(false)
     .whitelist_type("cudaDataType")
     .whitelist_type("cudaDataType_t")
     .generate()
     .expect("bindgen failed to generate library types bindings")
-    .write_to_file(out_dir.join("library_types.rs"))
+    .write_to_file(gensrc_dir.join("_library_types.rs"))
     .expect("bindgen failed to write library types bindings");
 }
