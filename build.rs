@@ -10,21 +10,6 @@ use std::path::{PathBuf};
 
 #[cfg(all(
     not(feature = "fresh"),
-    any(
-        feature = "cuda_6_5",
-        feature = "cuda_7_0",
-        feature = "cuda_7_5",
-        feature = "cuda_8_0",
-        feature = "cuda_9_0",
-        feature = "cuda_9_1",
-        feature = "cuda_9_2",
-        feature = "cuda_10_0",
-    )
-))]
-fn main() {}
-
-#[cfg(all(
-    not(feature = "fresh"),
     not(any(
         feature = "cuda_6_5",
         feature = "cuda_7_0",
@@ -39,6 +24,21 @@ fn main() {}
 fn main() {
   compile_error!("a cuda version feature must be enabled");
 }
+
+#[cfg(all(
+    not(feature = "fresh"),
+    any(
+        feature = "cuda_6_5",
+        feature = "cuda_7_0",
+        feature = "cuda_7_5",
+        feature = "cuda_8_0",
+        feature = "cuda_9_0",
+        feature = "cuda_9_1",
+        feature = "cuda_9_2",
+        feature = "cuda_10_0",
+    )
+))]
+fn main() {}
 
 #[cfg(feature = "fresh")]
 fn main() {
