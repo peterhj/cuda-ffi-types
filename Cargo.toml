@@ -1,5 +1,5 @@
 [package]
-name = "cuda-ffi-types"
+name = "cuda_api_types"
 version = "0.1.0-devel"
 edition = "2018"
 authors = ["Peter Jin <peterhaijin@gmail.com>"]
@@ -24,11 +24,7 @@ cuda_gte_9_2    = []
 cuda_gte_10_0   = []
 
 [build-dependencies]
-bindgen = { version = "^0.45", optional = true }
+bindgen = { version = "^0.46", optional = true }
 
 [dependencies]
 static_assertions = "0.3.1"
-
-[lib]
-name = "cuda_ffi_types"
-path = "src/lib.rs"
