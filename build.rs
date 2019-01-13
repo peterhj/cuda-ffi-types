@@ -68,9 +68,11 @@ fn main() {
   let a_cuda_version_feature_must_be_enabled = "v10_0";
   let v = a_cuda_version_feature_must_be_enabled;
 
-  let gensrc_dir = manifest_dir.join("src").join(v);
-  fs::create_dir(&gensrc_dir).ok();
+  let gensrc_dir = manifest_dir.join("gensrc").join(v);
+  println!("cargo:rerun-if-changed={}", gensrc_dir.display());
+  fs::create_dir_all(&gensrc_dir).ok();
 
+  println!("cargo:rerun-if-changed={}", gensrc_dir.join("_cuda.rs").display());
   fs::remove_file(gensrc_dir.join("_cuda.rs")).ok();
   bindgen::Builder::default()
     .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
@@ -102,6 +104,7 @@ fn main() {
     .whitelist_type("CUfunction")
     .whitelist_type("CUDA_LAUNCH_PARAMS_st")
     .whitelist_type("CUDA_LAUNCH_PARAMS")
+    .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate driver bindings")
     .write_to_file(gensrc_dir.join("_cuda.rs"))
@@ -110,6 +113,7 @@ fn main() {
   fs::remove_file(gensrc_dir.join("_cuda_fp16.rs")).ok();
   #[cfg(feature = "cuda_gte_9_0")]
   {
+    println!("cargo:rerun-if-changed={}", gensrc_dir.join("_cuda_fp16.rs").display());
     bindgen::Builder::default()
       .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
       .clang_arg("-x").clang_arg("c++")
@@ -118,24 +122,27 @@ fn main() {
       .whitelist_recursively(false)
       .whitelist_type("__half")
       .whitelist_type("__half2")
+      .rustfmt_bindings(true)
       .generate()
       .expect("bindgen failed to generate fp16 bindings")
       .write_to_file(gensrc_dir.join("_cuda_fp16.rs"))
       .expect("bindgen failed to write fp16 bindings");
   }
 
+  println!("cargo:rerun-if-changed={}", gensrc_dir.join("_cuda_runtime_api.rs").display());
   fs::remove_file(gensrc_dir.join("_cuda_runtime_api.rs")).ok();
   bindgen::Builder::default()
     .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
     .header("wrapped_cuda_runtime_api.h")
     .whitelist_recursively(false)
-    .whitelist_type("cudaDeviceProp")
     .whitelist_type("cudaStreamCallback_t")
+    .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate runtime bindings")
     .write_to_file(gensrc_dir.join("_cuda_runtime_api.rs"))
     .expect("bindgen failed to write runtime bindings");
 
+  println!("cargo:rerun-if-changed={}", gensrc_dir.join("_driver_types.rs").display());
   fs::remove_file(gensrc_dir.join("_driver_types.rs")).ok();
   bindgen::Builder::default()
     .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
@@ -144,6 +151,8 @@ fn main() {
     .whitelist_type("cudaError")
     .whitelist_type("cudaError_t")
     .whitelist_type("cudaDeviceAttr")
+    .whitelist_type("cudaUUID_t")
+    .whitelist_type("cudaDeviceProp")
     .whitelist_type("cudaStream_t")
     .whitelist_type("cudaEvent_t")
     .whitelist_type("cudaMemoryAdvise")
@@ -152,11 +161,13 @@ fn main() {
     .whitelist_type("cudaGLDeviceList")
     .whitelist_type("cudaGraphicsResource")
     .whitelist_type("cudaGraphicsResource_t")
+    .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate driver types bindings")
     .write_to_file(gensrc_dir.join("_driver_types.rs"))
     .expect("bindgen failed to write driver types bindings");
 
+  println!("cargo:rerun-if-changed={}", gensrc_dir.join("_library_types.rs").display());
   fs::remove_file(gensrc_dir.join("_library_types.rs")).ok();
   bindgen::Builder::default()
     .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
@@ -164,6 +175,7 @@ fn main() {
     .whitelist_recursively(false)
     .whitelist_type("cudaDataType")
     .whitelist_type("cudaDataType_t")
+    .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate library types bindings")
     .write_to_file(gensrc_dir.join("_library_types.rs"))

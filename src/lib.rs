@@ -79,6 +79,14 @@ mod v {
 
 #[cfg(feature = "cuda_10_0")]
 mod v {
+  pub mod cuda              { include!("v10_0/_cuda.rs"); }
+  pub mod cuda_fp16         { include!("v10_0/_cuda_fp16.rs"); }
+  pub mod cuda_runtime_api  { use crate::driver_types::*;
+                              include!("v10_0/_cuda_runtime_api.rs"); }
+  pub mod driver_types      { use crate::cuda::*;
+                              include!("v10_0/_driver_types.rs"); }
+  pub mod library_types     { include!("v10_0/_library_types.rs"); }
+
   const_assert_eq!(cuda_api_version; self::cuda::__CUDA_API_VERSION, 10000);
   const_assert_eq!(cuda_version;     self::cuda::CUDA_VERSION,       10000);
 }
