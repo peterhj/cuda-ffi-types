@@ -110,10 +110,9 @@ fn main() {
     .write_to_file(gensrc_dir.join("_cuda.rs"))
     .expect("bindgen failed to write driver bindings");
 
-  fs::remove_file(gensrc_dir.join("_cuda_fp16.rs")).ok();
-  #[cfg(feature = "cuda_gte_9_0")]
-  {
+  if cfg!(feature = "cuda_gte_9_0") {
     println!("cargo:rerun-if-changed={}", gensrc_dir.join("_cuda_fp16.rs").display());
+    fs::remove_file(gensrc_dir.join("_cuda_fp16.rs")).ok();
     bindgen::Builder::default()
       .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
       .clang_arg("-x").clang_arg("c++")
