@@ -104,6 +104,7 @@ fn main() {
     .whitelist_type("CUfunction")
     .whitelist_type("CUDA_LAUNCH_PARAMS_st")
     .whitelist_type("CUDA_LAUNCH_PARAMS")
+    .generate_comments(false)
     .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate driver bindings")
@@ -121,6 +122,7 @@ fn main() {
       .whitelist_recursively(false)
       .whitelist_type("__half")
       .whitelist_type("__half2")
+      .generate_comments(false)
       .rustfmt_bindings(true)
       .generate()
       .expect("bindgen failed to generate fp16 bindings")
@@ -135,6 +137,7 @@ fn main() {
     .header("wrapped_cuda_runtime_api.h")
     .whitelist_recursively(false)
     .whitelist_type("cudaStreamCallback_t")
+    .generate_comments(false)
     .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate runtime bindings")
@@ -160,23 +163,27 @@ fn main() {
     .whitelist_type("cudaGLDeviceList")
     .whitelist_type("cudaGraphicsResource")
     .whitelist_type("cudaGraphicsResource_t")
+    .generate_comments(false)
     .rustfmt_bindings(true)
     .generate()
     .expect("bindgen failed to generate driver types bindings")
     .write_to_file(gensrc_dir.join("_driver_types.rs"))
     .expect("bindgen failed to write driver types bindings");
 
-  println!("cargo:rerun-if-changed={}", gensrc_dir.join("_library_types.rs").display());
-  fs::remove_file(gensrc_dir.join("_library_types.rs")).ok();
-  bindgen::Builder::default()
-    .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
-    .header("wrapped_library_types.h")
-    .whitelist_recursively(false)
-    .whitelist_type("cudaDataType")
-    .whitelist_type("cudaDataType_t")
-    .rustfmt_bindings(true)
-    .generate()
-    .expect("bindgen failed to generate library types bindings")
-    .write_to_file(gensrc_dir.join("_library_types.rs"))
-    .expect("bindgen failed to write library types bindings");
+  if cfg!(feature = "cuda_gte_8_0") {
+    println!("cargo:rerun-if-changed={}", gensrc_dir.join("_library_types.rs").display());
+    fs::remove_file(gensrc_dir.join("_library_types.rs")).ok();
+    bindgen::Builder::default()
+      .clang_arg(format!("-I{}", cuda_include_dir.as_os_str().to_str().unwrap()))
+      .header("wrapped_library_types.h")
+      .whitelist_recursively(false)
+      .whitelist_type("cudaDataType")
+      .whitelist_type("cudaDataType_t")
+      .generate_comments(false)
+      .rustfmt_bindings(true)
+      .generate()
+      .expect("bindgen failed to generate library types bindings")
+      .write_to_file(gensrc_dir.join("_library_types.rs"))
+      .expect("bindgen failed to write library types bindings");
+  }
 }

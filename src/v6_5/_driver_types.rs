@@ -78,9 +78,6 @@ pub const cudaError_cudaErrorInvalidPc: cudaError = 76;
 pub const cudaError_cudaErrorIllegalAddress: cudaError = 77;
 pub const cudaError_cudaErrorInvalidPtx: cudaError = 78;
 pub const cudaError_cudaErrorInvalidGraphicsContext: cudaError = 79;
-pub const cudaError_cudaErrorNvlinkUncorrectable: cudaError = 80;
-pub const cudaError_cudaErrorJitCompilerNotFound: cudaError = 81;
-pub const cudaError_cudaErrorCooperativeLaunchTooLarge: cudaError = 82;
 pub const cudaError_cudaErrorStartupFailure: cudaError = 127;
 pub const cudaError_cudaErrorApiFailureBase: cudaError = 10000;
 pub type cudaError = u32;
@@ -95,19 +92,6 @@ pub type cudaMemcpyKind = u32;
 pub struct cudaGraphicsResource {
     _unused: [u8; 0],
 }
-pub const cudaMemoryAdvise_cudaMemAdviseSetReadMostly: cudaMemoryAdvise = 1;
-pub const cudaMemoryAdvise_cudaMemAdviseUnsetReadMostly: cudaMemoryAdvise = 2;
-pub const cudaMemoryAdvise_cudaMemAdviseSetPreferredLocation: cudaMemoryAdvise = 3;
-pub const cudaMemoryAdvise_cudaMemAdviseUnsetPreferredLocation: cudaMemoryAdvise = 4;
-pub const cudaMemoryAdvise_cudaMemAdviseSetAccessedBy: cudaMemoryAdvise = 5;
-pub const cudaMemoryAdvise_cudaMemAdviseUnsetAccessedBy: cudaMemoryAdvise = 6;
-pub type cudaMemoryAdvise = u32;
-pub const cudaMemRangeAttribute_cudaMemRangeAttributeReadMostly: cudaMemRangeAttribute = 1;
-pub const cudaMemRangeAttribute_cudaMemRangeAttributePreferredLocation: cudaMemRangeAttribute = 2;
-pub const cudaMemRangeAttribute_cudaMemRangeAttributeAccessedBy: cudaMemRangeAttribute = 3;
-pub const cudaMemRangeAttribute_cudaMemRangeAttributeLastPrefetchLocation: cudaMemRangeAttribute =
-    4;
-pub type cudaMemRangeAttribute = u32;
 pub const cudaDeviceAttr_cudaDevAttrMaxThreadsPerBlock: cudaDeviceAttr = 1;
 pub const cudaDeviceAttr_cudaDevAttrMaxBlockDimX: cudaDeviceAttr = 2;
 pub const cudaDeviceAttr_cudaDevAttrMaxBlockDimY: cudaDeviceAttr = 3;
@@ -192,22 +176,6 @@ pub const cudaDeviceAttr_cudaDevAttrMaxRegistersPerMultiprocessor: cudaDeviceAtt
 pub const cudaDeviceAttr_cudaDevAttrManagedMemory: cudaDeviceAttr = 83;
 pub const cudaDeviceAttr_cudaDevAttrIsMultiGpuBoard: cudaDeviceAttr = 84;
 pub const cudaDeviceAttr_cudaDevAttrMultiGpuBoardGroupID: cudaDeviceAttr = 85;
-pub const cudaDeviceAttr_cudaDevAttrHostNativeAtomicSupported: cudaDeviceAttr = 86;
-pub const cudaDeviceAttr_cudaDevAttrSingleToDoublePrecisionPerfRatio: cudaDeviceAttr = 87;
-pub const cudaDeviceAttr_cudaDevAttrPageableMemoryAccess: cudaDeviceAttr = 88;
-pub const cudaDeviceAttr_cudaDevAttrConcurrentManagedAccess: cudaDeviceAttr = 89;
-pub const cudaDeviceAttr_cudaDevAttrComputePreemptionSupported: cudaDeviceAttr = 90;
-pub const cudaDeviceAttr_cudaDevAttrCanUseHostPointerForRegisteredMem: cudaDeviceAttr = 91;
-pub const cudaDeviceAttr_cudaDevAttrReserved92: cudaDeviceAttr = 92;
-pub const cudaDeviceAttr_cudaDevAttrReserved93: cudaDeviceAttr = 93;
-pub const cudaDeviceAttr_cudaDevAttrReserved94: cudaDeviceAttr = 94;
-pub const cudaDeviceAttr_cudaDevAttrCooperativeLaunch: cudaDeviceAttr = 95;
-pub const cudaDeviceAttr_cudaDevAttrCooperativeMultiDeviceLaunch: cudaDeviceAttr = 96;
-pub const cudaDeviceAttr_cudaDevAttrMaxSharedMemoryPerBlockOptin: cudaDeviceAttr = 97;
-pub const cudaDeviceAttr_cudaDevAttrCanFlushRemoteWrites: cudaDeviceAttr = 98;
-pub const cudaDeviceAttr_cudaDevAttrHostRegisterSupported: cudaDeviceAttr = 99;
-pub const cudaDeviceAttr_cudaDevAttrPageableMemoryAccessUsesHostPageTables: cudaDeviceAttr = 100;
-pub const cudaDeviceAttr_cudaDevAttrDirectManagedMemAccessFromHost: cudaDeviceAttr = 101;
 pub type cudaDeviceAttr = u32;
 #[repr(C)]
 pub struct cudaDeviceProp {
@@ -273,23 +241,12 @@ pub struct cudaDeviceProp {
     pub managedMemory: ::std::os::raw::c_int,
     pub isMultiGpuBoard: ::std::os::raw::c_int,
     pub multiGpuBoardGroupID: ::std::os::raw::c_int,
-    pub hostNativeAtomicSupported: ::std::os::raw::c_int,
-    pub singleToDoublePrecisionPerfRatio: ::std::os::raw::c_int,
-    pub pageableMemoryAccess: ::std::os::raw::c_int,
-    pub concurrentManagedAccess: ::std::os::raw::c_int,
-    pub computePreemptionSupported: ::std::os::raw::c_int,
-    pub canUseHostPointerForRegisteredMem: ::std::os::raw::c_int,
-    pub cooperativeLaunch: ::std::os::raw::c_int,
-    pub cooperativeMultiDeviceLaunch: ::std::os::raw::c_int,
-    pub sharedMemPerBlockOptin: usize,
-    pub pageableMemoryAccessUsesHostPageTables: ::std::os::raw::c_int,
-    pub directManagedMemAccessFromHost: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_cudaDeviceProp() {
     assert_eq!(
         ::std::mem::size_of::<cudaDeviceProp>(),
-        680usize,
+        632usize,
         concat!("Size of: ", stringify!(cudaDeviceProp))
     );
     assert_eq!(
@@ -972,145 +929,6 @@ fn bindgen_test_layout_cudaDeviceProp() {
             stringify!(cudaDeviceProp),
             "::",
             stringify!(multiGpuBoardGroupID)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).hostNativeAtomicSupported as *const _
-                as usize
-        },
-        632usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(hostNativeAtomicSupported)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).singleToDoublePrecisionPerfRatio as *const _
-                as usize
-        },
-        636usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(singleToDoublePrecisionPerfRatio)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).pageableMemoryAccess as *const _ as usize
-        },
-        640usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(pageableMemoryAccess)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).concurrentManagedAccess as *const _ as usize
-        },
-        644usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(concurrentManagedAccess)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).computePreemptionSupported as *const _
-                as usize
-        },
-        648usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(computePreemptionSupported)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).canUseHostPointerForRegisteredMem as *const _
-                as usize
-        },
-        652usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(canUseHostPointerForRegisteredMem)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).cooperativeLaunch as *const _ as usize
-        },
-        656usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(cooperativeLaunch)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).cooperativeMultiDeviceLaunch as *const _
-                as usize
-        },
-        660usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(cooperativeMultiDeviceLaunch)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).sharedMemPerBlockOptin as *const _ as usize
-        },
-        664usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(sharedMemPerBlockOptin)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).pageableMemoryAccessUsesHostPageTables
-                as *const _ as usize
-        },
-        672usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(pageableMemoryAccessUsesHostPageTables)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<cudaDeviceProp>())).directManagedMemAccessFromHost as *const _
-                as usize
-        },
-        676usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(cudaDeviceProp),
-            "::",
-            stringify!(directManagedMemAccessFromHost)
         )
     );
 }
